@@ -1,4 +1,4 @@
-from scene import *
+from graphics import *
 import sound
 import random
 import math
