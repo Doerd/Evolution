@@ -162,7 +162,7 @@ class Algorithm():
 		brain.syn[1] = syn1
 		
 		vec_difference = creature2.position-creature1.position
-		midpoint = creature1.position + vec_difference/2
+		midpoint = creature1.position + 0.5*vec_difference
 		
 		return Creature(len(self.population)-1, midpoint, Vector(1,0), vision, speed, energy, brain, self.foods, self.population, self.CREATURE_VISIBILITY)
 		
@@ -270,9 +270,9 @@ class Creature():
 				self.turn_to_mate()
 					
 		if go_to_food:
-			if True:#len(self.visible_foods) > 0:
-				#self.turn_to_food(self.visible_foods)
-				self.turn()
+			if len(self.visible_foods) > 0:#True:
+				self.turn_to_food(self.visible_foods)
+				#self.turn()
 			else:
 				self.turn_in_circles()
 			
@@ -311,12 +311,20 @@ class Creature():
 		
 		#print(food_vec)
 		
-		out = self.brain.forward([food_vec.x, food_vec.y, creature_vec.x, creature_vec.y, self.heading.x, self.heading.y])
+		out = self.brain.forward(numpy.array([food_vec.x, food_vec.y, creature_vec.x, creature_vec.y, self.heading.x, self.heading.y]).T)
 		
-		self.mean_outputs[0] += out
-		self.mean_outputs[1] += 1
+		#self.mean_outputs[0] += out
+		#self.mean_outputs[1] += 1
 		
-		direction = numpy.sign(out-self.mean_outputs[0]/self.mean_outputs[1])
+		#direction = numpy.sign(out-self.mean_outputs[0]/self.mean_outputs[1])
+		
+		if out==0:
+			direction = 0
+		else:
+			direction = int(out/abs(out))
+		#direction = numpy.sign(out)
+		
+		#print(direction)
 		
 		heading_angle = numpy.arctan2(self.heading.y, self.heading.x)	
 		heading_angle += 0.05*direction
@@ -360,6 +368,8 @@ class Creature():
 		food_vec = self.position-food.position	
 		food_angle = numpy.arctan2(food_vec.y, food_vec.x)
 		
+		heading_angle = numpy.arctan2(self.heading.y, self.heading.x)	
+		
 		if food_angle<0:
 			food_angle+=2*numpy.pi
 		if heading_angle<0:
@@ -372,7 +382,7 @@ class Creature():
 			direction *= -1
 		
 		
-		heading_angle = numpy.arctan2(self.heading.y, self.heading.x)	
+		
 		heading_angle += 0.05*direction
 		self.heading = Vector(numpy.cos(heading_angle), numpy.sin(heading_angle))	
 		

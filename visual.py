@@ -1,96 +1,71 @@
 from graphics import *
-import sound
-import random
-import math
 import numpy
-
 from objs import *
+import sys, pygame
 
-A = Action
-SPEED = 1
-MINUTES_ELAPSED = 1
+SPEED = 5
+MINUTES_ELAPSED = 0
 
-class MyScene (Scene):
-	def setup(self):
-		self.algorithm = Algorithm(self.size.w, self.size.h, 10, num_foods=10, FOOD_RESPAWN_RATE=0.01, FOOD_SUSTENANCE=15, ENERGY_DECAY_PER_20=0.0005, CREATURE_LIFESPAN=20000, MUTATION_CHANCE=0.1)
-		self.init_sped = sum([m.max_speed for m in self.algorithm.population])/len(self.algorithm.population)
-		self.init_eng = sum([m.max_energy for m in self.algorithm.population])/len(self.algorithm.population)
-		self.init_vis = sum([m.vision_range for m in self.algorithm.population])/len(self.algorithm.population)
-		self.init_pop = len(self.algorithm.population)
-		
-		for i in range(int(3600*MINUTES_ELAPSED)):
-			self.algorithm.update()
-			
-		self.X_FACTOR = self.size.w/self.algorithm.max_x
-		self.Y_FACTOR = self.size.h/self.algorithm.max_y
-	
-	def did_change_size(self):
-		pass
-	
-	def draw(self):
-		
-		for c in self.algorithm.population:
-			fill('white')
-			stroke_weight(2)
-			stroke('white')
-			if c.looking_for_mate:
-				fill('#00ff16')
-				stroke('#00ff16')
-			ellipse(self.X_FACTOR*(c.position.x-10), self.Y_FACTOR*(c.position.y-10), self.X_FACTOR*20, self.Y_FACTOR*20)
-			#current energy percent indicator
-			text(str((c.current_energy/c.max_energy)*100)[:5]+"%", font_size=10, x=self.X_FACTOR*(c.position.x+10), y=self.Y_FACTOR*(c.position.y+6), alignment=9)
-			
-		fill('red')
-		stroke('red')
-		stroke_weight(3)
-		for f in self.algorithm.foods:
-			ellipse(self.X_FACTOR*(f.position.x-5), self.Y_FACTOR*(f.position.y-5), self.X_FACTOR*10, self.Y_FACTOR*10)
-			
-		
-		for c in self.algorithm.population:
-		#line(c.position.x, c.position.y, c.get_closest_food(self.algorithm.foods).position.x, c.get_closest_food(self.algorithm.foods).position.y)
-			line(self.X_FACTOR*c.position.x, self.Y_FACTOR*c.position.y, self.X_FACTOR*(c.position.x + 20*c.heading.x), self.Y_FACTOR*(c.position.y + 20*c.heading.y))
-		
-		#vision range
-		fill(.97, 1.0, .33, 0.2)
-		#fill('yellow')
-		stroke_weight(0)
-		for c in self.algorithm.population[:10]:
-			var = 2*self.algorithm.CREATURE_VISIBILITY*c.vision_range
-			pass#ellipse(self.X_FACTOR*(c.position.x-var/2), self.Y_FACTOR*(c.position.y-var/2), self.X_FACTOR*var, self.Y_FACTOR*var)
-			
-		#lifespan bar
-		'''
-		fill(0,0,0,0)
-		stroke_weight(1)
-		rect(c.position.x-18, c.position.y-20, 36, 6)
-		stroke_weight(0)
-		fill('#0bff60')
-		rect(c.position.x-17, c.position.y-19, 36*(1-(c.time_since_birth/self.algorithm.CREATURE_LIFESPAN))-2, 4)
-		'''
-	
-		sped = sum([m.max_speed for m in self.algorithm.population])/len(self.algorithm.population)
-		eng = sum([m.max_energy for m in self.algorithm.population])/len(self.algorithm.population)
-		vis = sum([m.vision_range for m in self.algorithm.population])/len(self.algorithm.population)
-		
-		text("POPULATION \t\tcurrent: "+str(len(self.algorithm.population))+"\t\tinitial: "+str(self.init_pop), font_name='Helvetica', font_size=20.0, x=10, y=70, alignment=9)
-		text("SPEED average \tcurrent: "+str(sped)[:5]+"\tinitial: "+str(self.init_sped)[:5], font_name='Helvetica', font_size=20.0, x=10, y=50, alignment=9)
-		text("ENERGY average \tcurrent: "+str(eng)[:5]+"\tinitial: "+str(self.init_eng)[:5], font_name='Helvetica', font_size=20.0, x=10, y=30, alignment=9)
-		text("VISION average \tcurrent: "+str(vis)[:5]+"\tinitial: "+str(self.init_vis)[:5], font_name='Helvetica', font_size=20.0, x=10, y=10, alignment=9)
-		
-	def update(self):
-		for i in range(SPEED):
-			self.algorithm.update()
-		
-	
-	def touch_began(self, touch):
-		pass
-	
-	def touch_moved(self, touch):
-		pass
-	
-	def touch_ended(self, touch):
-		pass
+pygame.init()
 
-if __name__ == '__main__':
-	run(MyScene(), orientation=LANDSCAPE, show_fps=True)
+size = width, height = 1000, 800
+
+
+
+screen = pygame.display.set_mode(size)
+
+algorithm = Algorithm(size[0], size[1], 10, num_foods=10, FOOD_RESPAWN_RATE=0.05, FOOD_SUSTENANCE=15, ENERGY_DECAY_PER_20=0.0005, CREATURE_LIFESPAN=20000, MUTATION_CHANCE=0.1)
+
+init_sped = sum([m.max_speed for m in algorithm.population])/len(algorithm.population)
+init_eng = sum([m.max_energy for m in algorithm.population])/len(algorithm.population)
+init_vis = sum([m.vision_range for m in algorithm.population])/len(algorithm.population)
+init_pop = len(algorithm.population)
+
+for i in range(int(3600*MINUTES_ELAPSED)):
+	algorithm.update()
+
+X_FACTOR = size[0]/algorithm.max_x
+Y_FACTOR = size[1]/algorithm.max_y
+TOTAL_FACTOR = numpy.sqrt(X_FACTOR**2 + Y_FACTOR**2)
+
+black = 0, 0, 0
+white = 255, 255, 255
+red = 255, 0, 0
+
+clock = pygame.time.Clock()
+while 1:
+	clock.tick(60)
+	pygame.display.set_caption("fps: " + str(clock.get_fps()))
+	for event in pygame.event.get():
+		if event.type == pygame.QUIT: sys.exit()
+	screen.fill(white)
+	for i in range(SPEED):
+		algorithm.update()
+	for c in algorithm.population:
+		rect_c = pygame.Rect(c.position.x-15, c.position.y-15, 30, 30)
+		surf_c = pygame.Surface((30,30))
+		pygame.draw.ellipse(surf_c, black, rect_c)
+		screen.blit(surf_c, rect_c)
+	for f in algorithm.foods:
+		rect_f = pygame.Rect(f.position.x-15, f.position.y-15, 30, 30)
+		surf_f = pygame.Surface((10,10))
+		surf_f.fill(red)
+		screen.blit(surf_f, rect_f)
+	
+	
+	pygame.display.flip()
+
+'''
+while 1:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT: sys.exit()
+
+    ballrect = ballrect.move(speed)
+    if ballrect.left < 0 or ballrect.right > width:
+        speed[0] = -speed[0]
+    if ballrect.top < 0 or ballrect.bottom > height:
+        speed[1] = -speed[1]
+
+    #screen.fill(black)
+    screen.blit(ball, ballrect)
+    pygame.display.flip()'''

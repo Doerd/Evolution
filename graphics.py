@@ -647,6 +647,7 @@ class Circle(Oval):
         p2 = Point(center.x+radius, center.y+radius)
         Oval.__init__(self, p1, p2)
         self.radius = radius
+        self.center = center
 
     def __repr__(self):
         return "Circle({}, {})".format(str(self.getCenter()), str(self.radius))
@@ -658,6 +659,13 @@ class Circle(Oval):
         
     def getRadius(self):
         return self.radius
+	
+    def _draw(self, canvas, options):
+        p1 = Point(self.center.x-self.radius, self.center.y-self.radius)
+        p2 = Point(self.center.x+self.radius, self.center.y+self.radius)
+        x1,y1 = canvas.toScreen(p1.x,p1.y)
+        x2,y2 = canvas.toScreen(p2.x,p2.y)
+        return canvas.create_oval(x1,y1,x2,y2,options)
 
                   
 class Line(_BBox):
