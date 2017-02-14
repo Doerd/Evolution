@@ -1,6 +1,6 @@
-from scene import Vector2
+from essential import Vector
 import numpy
-from wlearn.neural import NeuralNetwork
+from neural import NeuralNetwork
 
 
 class Algorithm():
@@ -22,7 +22,7 @@ class Algorithm():
 			x=numpy.random.randint(0, self.max_x)
 			y=numpy.random.randint(0, self.max_y)
 			
-			self.foods.append(Food(Vector2(x,y), self.FOOD_SUSTENANCE))
+			self.foods.append(Food(Vector(x,y), self.FOOD_SUSTENANCE))
 		
 		#sum_means = MEAN_ENERGY + MEAN_SPEED
 		#mean_speed = MEAN_SPEED/sum_means
@@ -52,13 +52,13 @@ class Algorithm():
 			rand_energy /= sum
 			rand_vision /= sum
 			
-			self.population.append(Creature(i, Vector2(x,y), Vector2(1,0), rand_vision, rand_speed, rand_energy, Brain([6,3,1]), self.foods, self.population, self.CREATURE_VISIBILITY))
+			self.population.append(Creature(i, Vector(x,y), Vector(1,0), rand_vision, rand_speed, rand_energy, Brain([6,3,1]), self.foods, self.population, self.CREATURE_VISIBILITY))
 					
 	def update(self):
 		if len(self.foods) == 0 or numpy.random.rand() < self.FOOD_RESPAWN_RATE:
 			x=numpy.random.randint(0, self.max_x)
 			y=numpy.random.randint(0, self.max_y)
-			self.foods.append(Food(Vector2(x,y), self.FOOD_SUSTENANCE))
+			self.foods.append(Food(Vector(x,y), self.FOOD_SUSTENANCE))
 		
 		if len(self.foods) > 60:
 			#self.foods = self.foods[:len(self.foods)-1]
@@ -80,13 +80,13 @@ class Algorithm():
 			count += 1
 			
 			if abs(c.position.x-self.max_x/2) > self.max_x/2:
-				c.heading = Vector2(-c.heading.x, c.heading.y)
+				c.heading = Vector(-c.heading.x, c.heading.y)
 				#c.position.x += -10*numpy.sign(c.position.x-self.max_x)
-				c.position = Vector2((numpy.random.rand()*0.8+0.1)*self.max_x, (numpy.random.rand()*0.8+0.1)*self.max_y)
+				c.position = Vector((numpy.random.rand()*0.8+0.1)*self.max_x, (numpy.random.rand()*0.8+0.1)*self.max_y)
 			if abs(c.position.y-self.max_y/2) > self.max_y/2:
-				c.heading = Vector2(c.heading.x, -c.heading.y)
+				c.heading = Vector(c.heading.x, -c.heading.y)
 				#c.position.y += -10*numpy.sign(c.position.y-self.max_y)
-				c.position = Vector2((numpy.random.rand()*0.8+0.1)*self.max_x, (numpy.random.rand()*0.8+0.1)*self.max_y)
+				c.position = Vector((numpy.random.rand()*0.8+0.1)*self.max_x, (numpy.random.rand()*0.8+0.1)*self.max_y)
 			
 			#UPDATING YAY!!!!!
 			c.update()
@@ -164,7 +164,7 @@ class Algorithm():
 		vec_difference = creature2.position-creature1.position
 		midpoint = creature1.position + vec_difference/2
 		
-		return Creature(len(self.population)-1, midpoint, Vector2(1,0), vision, speed, energy, brain, self.foods, self.population, self.CREATURE_VISIBILITY)
+		return Creature(len(self.population)-1, midpoint, Vector(1,0), vision, speed, energy, brain, self.foods, self.population, self.CREATURE_VISIBILITY)
 		
 	def mutate(self, creature):
 		if numpy.random.rand() < self.MUTATION_CHANCE:
@@ -302,12 +302,12 @@ class Creature():
 		food = self.get_closest_food(self.ALL_FOODS)
 		food_vec = food.position-self.position
 		food_angle = numpy.arctan2(food_vec.y, food_vec.x)
-		food_vec = Vector2(numpy.cos(food_angle), numpy.sin(food_angle))
+		food_vec = Vector(numpy.cos(food_angle), numpy.sin(food_angle))
 		
 		creature = self.ALL_POPULATION[self.nearest_creature()]
 		creature_vec = creature.position-self.position
 		creature_angle = numpy.arctan2(creature_vec.y, creature_vec.x)
-		creature_vec = Vector2(numpy.cos(creature_angle), numpy.sin(creature_angle))
+		creature_vec = Vector(numpy.cos(creature_angle), numpy.sin(creature_angle))
 		
 		#print(food_vec)
 		
@@ -320,7 +320,7 @@ class Creature():
 		
 		heading_angle = numpy.arctan2(self.heading.y, self.heading.x)	
 		heading_angle += 0.05*direction
-		self.heading = Vector2(numpy.cos(heading_angle), numpy.sin(heading_angle))	
+		self.heading = Vector(numpy.cos(heading_angle), numpy.sin(heading_angle))	
 		
 	def get_closest_mate(self, pop):
 		mates = []
@@ -374,7 +374,7 @@ class Creature():
 		
 		heading_angle = numpy.arctan2(self.heading.y, self.heading.x)	
 		heading_angle += 0.05*direction
-		self.heading = Vector2(numpy.cos(heading_angle), numpy.sin(heading_angle))	
+		self.heading = Vector(numpy.cos(heading_angle), numpy.sin(heading_angle))	
 		
 	def turn_to_mate(self):
 		mate_vec = self.position-self.ALL_POPULATION[self.mate].position
@@ -394,12 +394,12 @@ class Creature():
 			direction *= -1
 			
 		heading_angle += 0.05*direction
-		self.heading = Vector2(numpy.cos(heading_angle), numpy.sin(heading_angle))
+		self.heading = Vector(numpy.cos(heading_angle), numpy.sin(heading_angle))
 
 	def turn_in_circles(self):
 		heading_angle = numpy.arctan2(self.heading.y, self.heading.x)
 		heading_angle += 0.05
-		self.heading = Vector2(numpy.cos(heading_angle), numpy.sin(heading_angle))
+		self.heading = Vector(numpy.cos(heading_angle), numpy.sin(heading_angle))
 		
 class Brain(NeuralNetwork):
 	def encode(self):
