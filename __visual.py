@@ -5,8 +5,8 @@ from matplotlib import pyplot
 from Algorithm import *
 from Brain import *
 
-load_population = False
-save_population = False
+load_population = True
+save_population = True
 
 SPEED = 1
 MINUTES_ELAPSED = 90
@@ -25,7 +25,6 @@ if load_population:
 	#[alg.max_x, alg.max_y, alg.pop_size, alg.MAX_FOODS, alg.FOOD_RESPAWN_RATE, alg.AVG_FOOD_SUSTENANCE, alg.FOOD_SPREAD, alg.ENERGY_DECAY_PER_20, alg.CREATURE_LIFESPAN, alg.MUTATION_CHANCE, alg.CREATURE_VISIBILITY]
 	
 	brain_file = numpy.load('brain_file.npz')
-	print(brain_file['inputs'])
 	inputs = brain_file['inputs']
 	outputs = brain_file['outputs']
 	neuron_counts = brain_file['neuron_counts']
